@@ -7,6 +7,7 @@ import os
 import telebot
 from string import Template
 import emoji
+import random
 from gtts import gTTS
 
 ## for data analysis
@@ -219,6 +220,15 @@ def send_plot(message):
         bot.send_message(chat_id, 'Campaign ID not found. Please try again!')
         ask_id_plot(message)
 
+# # -------------------- COBA: random quotes  --------------------
+# Fungsi untuk memberikan quote secara acak
+@bot.message_handler(commands=['quote'])
+def load_quotes_from_file(message):
+    with open('template_text/quotes.txt', 'r') as file:
+        content = file.read().split(';')   
+        quotes_list = [content.strip() for quote in content if content.strip()]
+        quote = random.choice(quotes_list)
+        bot.reply_to(message, quote)  
 
 
 # # -------------------- CHECKPOINT 4 --------------------

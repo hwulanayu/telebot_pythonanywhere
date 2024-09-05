@@ -9,3 +9,6 @@ You can control me by sending these commands:
 *Information*
 /help - List of available commands
 /about - About me
+
+*Random*
+/quote - Random quote for your day
