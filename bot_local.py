@@ -19,7 +19,7 @@ matplotlib.use('Agg')
 # SETUP: TELEGRAM BOT API TOKEN
 load_dotenv()
 TOKEN = os.environ['TOKEN']
-bot = telebot.TeleBot(TOKEN)
+bot = telebot.TeleBot(TOKEN, threaded=False)
 
 
 # -------------------- CHECKPOINT 1 --------------------
@@ -31,7 +31,7 @@ def send_welcome(message):
     first_name = message.from_user.first_name
     last_name = message.from_user.last_name
     full_name = f'{first_name} {last_name}' if last_name is not None else first_name
-    
+
     # TO DO: subtitute text with variable
     with open('template_text/welcome.txt', mode='r', encoding='utf-8') as f:
         content = f.read()
@@ -99,10 +99,10 @@ def send_summary(message):
     if selected_campaign_id in unique_campaign:
         # TO DO: find the range date
         df_campaign = df[df['campaign_id'] == selected_campaign_id]
-        
+
         start_date = df_campaign['reporting_date'].min().strftime(format='%d %b %Y')
         end_date = df_campaign['reporting_date'].max().strftime(format='%d %b %Y')
-        
+
         # TO DO: perform calculation
         total_spent = int(df_campaign['spent'].sum())
         total_conversion = int(df_campaign['total_conversion'].sum())
@@ -152,7 +152,7 @@ def send_plot(message):
         df_plot = df_campaign.groupby('age').sum(numeric_only=True)[['spent', 'approved_conversion']]
         df_plot['cpc'] = df_plot['spent'] / df_plot['approved_conversion']
 
-        
+
 #         # TO DO: visualization
 
         # prepare 3 subplots vertically
@@ -223,12 +223,12 @@ def send_plot(message):
 # # -------------------- COBA: random quotes  --------------------
 # Fungsi untuk memberikan quote secara acak
 @bot.message_handler(commands=['quote'])
-def load_quotes_from_file(message):
+def send_random_quote(message):
     with open('template_text/quotes.txt', 'r') as file:
-        content = file.read().split(';')   
-        quotes_list = [content.strip() for quote in content if content.strip()]
-        quote = random.choice(quotes_list)
-        bot.reply_to(message, quote)  
+        content = file.read()
+        quotes_list = [quote.strip() for quote in content.split(';') if quote.strip()]  # Memisahkan dan membersihkan quotes
+        quote = random.choice(quotes_list)  # Pilih quote secara acak
+    bot.reply_to(message, quote)  # Kirimkan quote ke pengguna
 
 
 # # -------------------- CHECKPOINT 4 --------------------
@@ -238,7 +238,7 @@ def echo_all(message):
     with open('template_text/default.txt', mode='r', encoding='utf-8') as f:
         temp = Template(f.read())
         default = temp.substitute(EMOJI = '🤔')
-        
+
     bot.reply_to(message, default)
 
 
