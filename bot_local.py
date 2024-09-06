@@ -20,6 +20,10 @@ matplotlib.use('Agg')
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
 
+# Inisialisasi scheduler
+scheduler = BackgroundScheduler()
+scheduler.start()
+
 # SETUP: TELEGRAM BOT API TOKEN
 load_dotenv()
 TOKEN = os.environ['TOKEN']
