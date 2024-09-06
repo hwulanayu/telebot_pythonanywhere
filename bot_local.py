@@ -16,6 +16,10 @@ import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('Agg')
 
+## for scheduler
+from apscheduler.schedulers.background import BackgroundScheduler
+from datetime import datetime
+
 # SETUP: TELEGRAM BOT API TOKEN
 load_dotenv()
 TOKEN = os.environ['TOKEN']
@@ -221,7 +225,6 @@ def send_plot(message):
         ask_id_plot(message)
 
 # # -------------------- COBA: random quotes  --------------------
-# Fungsi untuk memberikan quote secara acak
 @bot.message_handler(commands=['quote'])
 def send_random_quote(message):
     with open('template_text/quotes.txt', 'r') as file:
@@ -230,6 +233,32 @@ def send_random_quote(message):
         quote = random.choice(quotes_list)  # Pilih quote secara acak
     bot.reply_to(message, quote)  # Kirimkan quote ke pengguna
 
+# # -------------------- COBA: scheduler  --------------------
+def send_scheduled_message(chat_id, message):
+    bot.send_message(chat_id, message)
+
+@bot.message_handler(func=lambda message: message.text.startswith('/schedule'))
+def set_schedule(message):
+    try:
+        parts = message.text.split(maxsplit=3)
+        if len(parts) != 4:
+            raise ValueError("Format tidak valid")
+        
+        _, date, time, scheduled_message = parts
+        date_time_str = f"{date} {time}"
+        
+        # Parse tanggal dan waktu
+        schedule_time = datetime.strptime(date_time_str, '%Y-%m-%d %H:%M')
+        
+        # Jadwalkan pesan
+        scheduler.add_job(send_scheduled_message, 'date', run_date=schedule_time, 
+                          args=[message.chat.id, scheduled_message])
+        
+        bot.reply_to(message, f"Pesan telah dijadwalkan untuk {schedule_time}")
+    except ValueError as e:
+        bot.reply_to(message, "Format tidak valid. Gunakan: /schedule YYYY-MM-DD HH:MM pesan")
+    except Exception as e:
+        bot.reply_to(message, f"Terjadi kesalahan: {str(e)}")
 
 # # -------------------- CHECKPOINT 4 --------------------
 @bot.message_handler(func=lambda message: True)
